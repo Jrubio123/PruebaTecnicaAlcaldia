@@ -77,3 +77,13 @@ curl http://localhost:3000/solicitudes \
 ```
 
 La respuesta esperada en este último caso es `403 Forbidden`.
+
+## Escalabilidad
+
+Para escalar la solución 100 veces, lo primero sería agregar un balanceador de carga y levantar varias instancias de la API, manteniéndola sin estado.
+
+A nivel de datos, cambiaría SQLite por una base de datos más robusta como PostgreSQL. Agregaría índices a campos clave como la dependencia y las fechas, además de paginación en el GET para evitar traer miles de registros de una sola vez. Si las lecturas aumentan demasiado, utilizaría réplicas de lectura y caché con Redis.
+
+Para la parte asíncrona, reemplazaría la simulación por Kafka o RabbitMQ. De esta manera, los servicios de notificaciones, auditoría e indicadores consumirían los eventos de forma independiente y podrían escalar según su propia carga. También manejaría reintentos y una Dead Letter Queue para los mensajes que fallen repetidamente.
+
+Finalmente, agregaría monitoreo y logs centralizados para detectar dónde se están presentando problemas. Antes de seguir aumentando infraestructura, realizaría pruebas de carga para identificar los cuellos de botella del sistema.
